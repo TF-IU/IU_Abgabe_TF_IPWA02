@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Anforderungen</title>
+    <h:outputStylesheet name="theme.css" library="primefaces-saga" />	
+    <link rel="icon" href="resources/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="resources/css/styles.css" />
+</h:head>
+
+<h:body>
+<h:form id="form">
+	<!-- Header for Page -->
+	<h:panelGroup layout="block" styleClass="page-header">
+	    <h:graphicImage name="favicon.png" library="images" alt="Require4Testing Logo" />
+	    <h:outputText value="Require4Testing" styleClass="logo-text" />
+	</h:panelGroup>
+	
+	<!-- Main Content Area -->
+	<h:panelGroup layout="block" styleClass="page-layout">
+	    <p:panel header="Anforderungsverwaltung">
+	        <f:facet name="actions">
+	            <!-- Button to redirect to Dashboard -->
+		        <p:commandButton value="Dashboard"
+		                         icon="pi pi-home"
+		                         action="#{requirementController.redirectToDashboard}"
+		                         styleClass="ui-button-secondary"
+		                         style="margin-right: 20px;" />
+	    	</f:facet>
+	    
+	        <!-- Growl for messages -->
+		    <p:growl id="growl" showDetail="true" life="3000" />
+	
+	        <!-- DataTable for Requirements -->
+			<p:dataTable id="requirementTable"
+						 value="#{requirementController.requirements}"
+			             var="req"
+			             rowKey="#{req.id}"	             
+			             editable="#{permissionService.canEditRequirements()}"
+			             editMode="row"
+			             styleClass="editable-table"
+			             widgetVar="tableWidget"
+			             scrollable="true"
+			             scrollWidth="100%">
+				
+			    <!-- title -->
+			    <p:column headerText="Titel" sortable="true" sortBy="#{req.title}" styleClass="column-fixed">
+			        <p:cellEditor>
+			            <f:facet name="output"><h:outputText value="#{req.title}" /></f:facet>
+			            <f:facet name="input">
+			                <p:inputText value="#{req.title}" required="true" label="Titel" />
+			            </f:facet>
+			        </p:cellEditor>
+			    </p:column>
+			
+			    <!-- description -->
+			    <p:column headerText="Beschreibung" sortable="true" sortBy="#{req.description}" styleClass="column-fixed-bigger">
+			        <p:cellEditor>
+			            <f:facet name="output"><h:outputText value="#{req.description}" /></f:facet>
+			            <f:facet name="input">
+			                <p:inputTextarea value="#{req.description}" autoResize="false" style="width:100%;"/>
+			            </f:facet>
+			        </p:cellEditor>
+			    </p:column>
+			    
+			    <!-- createdBy -->
+				<p:column headerText="Erstellt von" sortable="true" sortBy="#{req.createdBy.displayName}" styleClass="column-fixed">
+				    <h:outputText value="#{req.createdBy.displayName}" />
+				</p:column>
+				
+				<!-- createdAt -->
+				<p:column headerText="Erstellt am" sortable="true" sortBy="#{req.createdAt}" styleClass="column-fixed">
+				    <h:outputText value="#{req.getCreatedDateFormatted()}" />
+				</p:column>	    
+			
+			    <!-- edit mode -->
+			    <p:column styleClass="column-edit" rendered="#{permissionService.canEditRequirements()}">
+			        <p:rowEditor />
+			    </p:column>
+			    
+			    <!-- delete button -->
+			    <p:column styleclass="column-trash" rendered="#{permissionService.canEditRequirements()}">
+				    <p:commandButton icon="pi pi-trash"
+				                     styleClass="ui-button-danger"
+				                     action="#{requirementController.deleteSelected(req)}"
+				                     process="@this"
+				                     update=":form:growl :form:requirementTable"
+				                     title="Löschen" 
+				                     />
+				</p:column>
+			    		
+			    <!-- Ajax event for row edit and save-->
+			    <p:ajax event="rowEdit" listener="#{requirementController.onRowEdit}" update=":form:growl" />
+			    
+			</p:dataTable>
+			<br/>
+	
+	        <!-- Button to create new Requirement -->
+	        <p:commandButton value="Neu" 
+	        				 icon="pi pi-plus" 
+	        				 action="#{requirementController.createNew}" 
+	        				 rendered="#{permissionService.canEditRequirements()}" 
+	        				 update="@form"/>	   
+	      
+	    </p:panel>
+	</h:panelGroup>
+	
+	<!-- Footer -->
+	<h:panelGroup layout="block" styleClass="page-footer">
+	    <h:outputText value="© 2025 Require4Testing – " />
+	    <h:link outcome="dsgvo.xhtml" value="Datenschutzerklärung" />
+	</h:panelGroup>	
+</h:form>
+</h:body>
+</html>

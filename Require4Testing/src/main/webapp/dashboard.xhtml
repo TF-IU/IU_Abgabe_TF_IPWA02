@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Dashboard</title>
+	<h:outputStylesheet name="theme.css" library="primefaces-saga" />	
+    <link rel="icon" href="resources/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="resources/css/styles.css" />
+</h:head>
+
+<h:body>
+<h:form id="dashboardForm">
+    <!-- Header for Page -->
+	<h:panelGroup layout="block" styleClass="page-header">
+	    <h:graphicImage name="favicon.png" library="images" alt="Require4Testing Logo" />
+	    <h:outputText value="Require4Testing" styleClass="logo-text" />
+	</h:panelGroup>
+	
+    <!-- Main Content Area -->    
+	<h:panelGroup layout="block" styleClass="page-layout">
+	
+	    <!-- navigation left with buttons -->
+	    <p:panel header="Navigation" styleClass="nav-box"
+	             style="flex:0 0 220px; padding:20px; margin:0; border-right:1px solid #ddd; background-color:#fafafa;">
+	
+	        <p:commandButton value="Anforderungen" icon="pi pi-list"
+	                         action="#{dashboardController.getRequirements}"
+	                         styleClass="ui-button-primary" style="width:100%; margin-bottom:10px;" />
+	
+	        <p:commandButton value="Testläufe" icon="pi pi-calendar"
+	                         action="#{dashboardController.getTestRuns}"
+	                         styleClass="ui-button-primary" style="width:100%; margin-bottom:10px;" />
+	
+	        <p:commandButton value="Testfälle" icon="pi pi-check-square"
+	                         action="#{dashboardController.getTestCases}"
+	                         styleClass="ui-button-primary" style="width:100%;" />
+	    </p:panel>
+	
+	    <!-- main content area -->
+	    <p:panel styleClass="main-box"
+	             style="flex:1; padding:20px; margin:0; background-color:#fff;">
+	
+	        <!-- Information Panel -->
+	        <p:panel header="Informationen" style="margin-bottom:20px;">
+	            <f:facet name="actions">
+	                <p:commandButton value="Logout"
+	                                 icon="pi pi-sign-out"
+	                                 action="#{loginController.logout}"
+	                                 styleClass="ui-button-secondary" />
+	            </f:facet>
+	
+	            <p:panelGrid columns="2" layout="grid"
+	                         styleClass="ui-panelgrid ui-panelgrid-responsive"
+	                         style="width:100%; margin-bottom:20px;">
+	                <p:outputLabel value="Benutzer:" style="font-weight:bold;" />
+	                <p:outputLabel value="#{loginController.currentUser.displayName}" />
+	
+	                <p:outputLabel value="Rolle(n):" style="font-weight:bold;" />
+	                <p:repeat value="#{loginController.currentUser.roles}" var="r">
+	                    <p:badge value="#{r.displayName}" style="margin-right:5px;" />
+	                </p:repeat>
+	            </p:panelGrid>
+	        </p:panel>
+	
+			<!-- Dashboard Chart -->
+	        <p:panel header="Dashboard">
+	            <p:chart id="testChart"
+	                     widgetVar="testBarChart"
+	                     type="bar"
+	                     model="#{dashboardController.testCaseBarChart}"
+	                     style="height:300px;" />
+	        </p:panel>
+	
+	    </p:panel>
+	</h:panelGroup>
+	
+	<!-- Footer -->
+	<h:panelGroup layout="block" styleClass="page-footer">
+	    <h:outputText value="© 2025 Require4Testing – " />
+	    <h:link outcome="dsgvo.xhtml" value="Datenschutzerklärung" />
+	</h:panelGroup>
+
+
+      <!-- Chart-Reload -->
+      <p:remoteCommand name="reloadChart"
+                       action="#{dashboardController.checkAndRefresh}"
+                       update="testChart" />
+      <h:outputScript>
+          setTimeout(function() {
+              reloadChart();
+          }, 100);
+      </h:outputScript>
+
+</h:form>
+</h:body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Testlauf-Verwaltung</title>
+    <h:outputStylesheet name="theme.css" library="primefaces-saga" />	
+    <link rel="icon" href="resources/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="resources/css/styles.css" />
+</h:head>
+<h:body>
+<h:form id="form">
+	<!-- Header for Page -->
+	<h:panelGroup layout="block" styleClass="page-header">
+	    <h:graphicImage name="favicon.png" library="images" alt="Require4Testing Logo" />
+	    <h:outputText value="Require4Testing" styleClass="logo-text" />
+	</h:panelGroup>
+	
+	<!-- Main Content Area -->
+	<h:panelGroup layout="block" styleClass="page-layout">
+	    <p:panel header="Testlauf-Verwaltung">
+	        <f:facet name="actions">
+	            <!-- Button to redirect to Dashboard -->
+	            <p:commandButton value="Dashboard"
+	                             icon="pi pi-home"
+	                             action="#{testRunController.redirectToDashboard}"
+	                             styleClass="ui-button-secondary"
+	                             style="margin-right: 20px;" />
+	        </f:facet>
+	
+	        <!-- Growl for messages -->
+	        <p:growl id="growl" showDetail="true" life="3000" />
+	
+	        <!-- DataTable for Test Runs -->
+	        <p:dataTable id="testRunTable"
+	                     value="#{testRunController.testRuns}"
+	                     var="run"
+	                     rowKey="#{run.id}"
+	                     editable="#{permissionService.canEditTestRuns()}"
+	                     editMode="row"
+	                     widgetVar="runWidget"
+	                     selectionMode="single"
+	                     scrollable="true"
+			             scrollWidth="100%"
+			             styleClass="editable-table"
+			             >
+	                     
+	            <!-- title -->        
+	            <p:column headerText="Titel" sortable="true" sortBy="#{run.title}" styleClass="column-fixed">
+	                <p:cellEditor>
+	                    <f:facet name="output"><h:outputText value="#{run.title}" /></f:facet>
+	                    <f:facet name="input">
+	                        <p:inputText value="#{run.title}" required="true" label="Titel" />
+	                    </f:facet>
+	                </p:cellEditor>
+	            </p:column>
+	
+	            <!-- createdBy -->
+	            <p:column headerText="Erstellt von" sortable="true" sortBy="#{run.createdBy.displayName}" styleClass="column-fixed">
+	                <h:outputText value="#{run.createdBy.displayName}" />
+	            </p:column>
+	
+	            <!-- assignedTo -->
+				<p:column headerText="Zugewiesen an" sortable="true" sortBy="#{run.assignedTo.displayName}" styleClass="column-fixed">
+				    <p:cellEditor>
+				        <f:facet name="output">
+				            <h:outputText value="#{run.assignedTo.displayName}" />
+				        </f:facet>
+				        <f:facet name="input">
+				            <p:selectOneMenu value="#{run.assignedTo}" 
+				            				 style="width:100%"
+				            				 converter="userConverter">
+				            	<f:selectItem itemLabel="" itemValue="#{null}" />           				 
+				                <f:selectItems value="#{testRunController.userTester}"
+				                               var="tester"
+				                               itemLabel="#{tester.displayName}"
+				                               itemValue="#{tester}" />
+				                <p:ajax event="valueChange" update=":form:growl" />
+				            </p:selectOneMenu>
+				        </f:facet>
+				    </p:cellEditor>			    
+				</p:column>
+				
+				<!-- Testcases and option to pick them -->
+				<p:column headerText="Testfälle" styleClass="column-fixed-bigger">
+				    <p:cellEditor>
+				        <f:facet name="output">
+				            <h:outputText value="#{run.testCases.size()} Testfälle" />
+				        </f:facet>
+				        <f:facet name="input">
+				            <p:pickList value="#{testRunController.pickListsByRun[run.id]}"
+							            var="tc"
+							            itemLabel="#{tc.title}"
+							            itemValue="#{tc}"
+							            showSourceFilter="true"
+							            showTargetFilter="true"
+							            filterMatchMode="contains"
+							            converter="testCaseConverter"
+							            style="width:100%"
+							            responsive="true"
+							            showCheckbox="true">
+							    <f:facet name="sourceCaption">Verfügbar</f:facet>
+							    <f:facet name="targetCaption">Zugewiesen</f:facet>
+							</p:pickList>	
+				        </f:facet>
+				    </p:cellEditor>			    
+				</p:column>
+				
+				<!-- edit mode -->
+	            <p:column styleClass="column-edit" rendered="#{permissionService.canEditTestRuns()}">
+	                <p:rowEditor />
+	            </p:column>
+	
+				<!-- delete button -->
+	            <p:column styleclass="column-trash" rendered="#{permissionService.canEditTestRuns()}">
+	                <p:commandButton icon="pi pi-trash"
+	                                 styleClass="ui-button-danger"
+	                                 action="#{testRunController.delete(run)}"
+	                                 update=":form:growl :form"
+	                                 title="Löschen" />
+	            </p:column>
+	
+				<!-- Ajax event for row edit and save-->
+	            <p:ajax event="rowEdit" 
+	            		listener="#{testRunController.onRowEdit}" 
+	            		rendered="#{permissionService.canEditTestRuns()}" 
+	            		update=":form:growl" />
+	
+	        </p:dataTable>
+	
+	        <br/>
+	        
+	        <!-- Button to create new Test Run -->
+	        <p:commandButton value="Neu"
+	                         icon="pi pi-plus"
+	                         action="#{testRunController.createNew}"
+	                         update="@form"
+	                         rendered="#{permissionService.canEditTestRuns()}" />
+	    </p:panel>
+    </h:panelGroup>
+    
+    <!-- Footer -->
+	<h:panelGroup layout="block" styleClass="page-footer">
+	    <h:outputText value="© 2025 Require4Testing – " />
+	    <h:link outcome="dsgvo.xhtml" value="Datenschutzerklärung" />
+	</h:panelGroup>
+</h:form>
+</h:body>
+</html>

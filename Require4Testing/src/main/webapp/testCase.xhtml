@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Testfall-Verwaltung</title>
+    <h:outputStylesheet name="theme.css" library="primefaces-saga" />	
+    <link rel="icon" href="resources/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="resources/css/styles.css" />
+</h:head>
+
+<h:body>
+<h:form id="form">
+    <!-- Header for Page -->	
+	<h:panelGroup layout="block" styleClass="page-header">
+	    <h:graphicImage name="favicon.png" library="images" alt="Require4Testing Logo" />
+	    <h:outputText value="Require4Testing" styleClass="logo-text" />
+	</h:panelGroup>
+	
+	<!-- Main Content Area -->
+	<h:panelGroup layout="block" styleClass="page-layout">
+	    <p:panel header="Testfall-Verwaltung">
+	        <f:facet name="actions">
+	            <!-- Button to redirect to Dashboard -->
+	            <p:commandButton value="Dashboard"
+	                             icon="pi pi-home"
+	                             action="#{testCaseController.redirectToDashboard}"
+	                             styleClass="ui-button-secondary"
+	                             style="margin-right: 20px;" />
+	        </f:facet>
+	
+	        <!-- Growl for messages -->
+	        <p:growl id="growl" showDetail="true" life="3000" />
+	
+	        <!-- DataTable for Test Cases -->
+	        <p:dataTable id="testCaseTable"
+	        			 value="#{testCaseController.testCases}"
+	                     var="tc"
+	                     rowKey="#{tc.id}"
+	                     editable="#{permissionService.canEditTestCase()}"
+	                     editMode="row"
+	                     widgetVar="tcWidget"
+	                     scrollable="true"
+				         scrollWidth="100%"
+				         styleClass="editable-table">
+	
+				<!-- title -->
+	            <p:column headerText="Titel" sortable="true" sortBy="#{tc.title}" styleClass="column-fixed">
+	                <p:cellEditor>
+	                    <f:facet name="output"><h:outputText value="#{tc.title}" /></f:facet>
+	                    <f:facet name="input"><p:inputText 
+                    			 value="#{tc.title}"
+                    			 required="true"
+                    			 label="Titel"
+                    			 disabled="#{!permissionService.canCreateAndDeleteTestCase()}" />
+                		 </f:facet>
+	                </p:cellEditor>
+	            </p:column>
+	            S
+	            <!-- requirement -->
+	            <p:column headerText="Anforderung" sortable="true" sortBy="#{tc.requirementRef.title}" styleClass="column-fixed">
+				    <p:cellEditor>
+				        <f:facet name="output">
+				            <h:outputText value="#{tc.requirementRef.title}" />
+				        </f:facet>
+				        <f:facet name="input">
+				            <p:selectOneMenu value="#{tc.requirementRef}" 
+				            				 converter="requirementConverter" 
+				            				 disabled="#{!permissionService.canCreateAndDeleteTestCase()}"
+				            				 required="true" >>
+				                <f:selectItem itemLabel="" itemValue="#{null}" />
+				                <f:selectItems value="#{testCaseController.requirements}" var="req"
+				                               itemLabel="#{req.title}" itemValue="#{req}" />
+				            </p:selectOneMenu>
+				        </f:facet>
+				    </p:cellEditor>
+				</p:column>
+	            
+				<!-- result -->
+	            <p:column headerText="Ergebnis" sortable="true" sortBy="#{tc.result.getDisplayName()}" styleClass="column-fixed">
+	                <p:cellEditor>
+	                    <f:facet name="output"><h:outputText value="#{tc.result.getDisplayName()}" /></f:facet>
+	                    <f:facet name="input">
+	                        <p:selectOneMenu value="#{tc.result}" 
+	                        			     disabled="#{!permissionService.canEditTestResult(tc)}">
+	                            <f:selectItems value="#{testCaseController.testResults}" var="r"
+	                                           itemLabel="#{r.getDisplayName()}" itemValue="#{r}" />
+	                        </p:selectOneMenu>
+	                    </f:facet>
+	                </p:cellEditor>
+	            </p:column>
+	
+	            <!-- description -->
+	            <p:column headerText="Beschreibung" sortable="true" sortBy="#{tc.description}" styleClass="column-fixed-bigger">
+	                <p:cellEditor>
+	                    <f:facet name="output"><h:outputText value="#{tc.description}" /></f:facet>
+	                    <f:facet name="input">
+	                    		<p:inputTextarea value="#{tc.description}"
+	                     		 				 disabled="#{!permissionService.canCreateAndDeleteTestCase()}"
+	                     		 				 style="width:100%;"/>
+	                 	</f:facet>
+	                </p:cellEditor>
+	            </p:column>
+	
+				<!-- edit mode -->
+	            <p:column styleClass="column-edit" rendered="#{permissionService.canEditTestCase()}">
+	                <p:rowEditor />
+	            </p:column>
+	
+				<!-- delete button -->
+	            <p:column styleclass="column-trash">
+	                <p:commandButton icon="pi pi-trash"
+	                                 styleClass="ui-button-danger"
+	                                 action="#{testCaseController.delete(tc)}"
+	                                 rendered="#{permissionService.canCreateAndDeleteTestCase()}"
+	                                 update=":form:growl :form:testCaseTable"
+	                                 title="Löschen" />
+	            </p:column>
+	
+	            <!-- Ajax event for row edit and save-->
+	            <p:ajax event="rowEdit" 
+	          			listener="#{testCaseController.onRowEdit}" 
+	          			update=":form:growl" />
+	
+	        </p:dataTable>
+	        <br/>
+	        
+			<!-- Button to create new Test Case -->
+	        <p:commandButton value="Neu"
+	                         icon="pi pi-plus"
+	                         action="#{testCaseController.createNew}"
+	                         rendered="#{permissionService.canCreateAndDeleteTestCase()}"
+	                         update="@form" />
+	    </p:panel>
+    </h:panelGroup>
+    
+    <!-- Footer -->
+	<h:panelGroup layout="block" styleClass="page-footer">
+	    <h:outputText value="© 2025 Require4Testing – " />
+	    <h:link outcome="dsgvo.xhtml" value="Datenschutzerklärung" />
+	</h:panelGroup>
+</h:form>
+</h:body>
+</html>

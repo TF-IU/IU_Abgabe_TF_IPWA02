@@ -1,0 +1,75 @@
+body {
+    background-image: url('../images/background.png');
+    background-size: cover;
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
+    background-position: center; 
+    opacity: 0.85;
+}
+
+.page-layout {
+    display: flex;
+    gap: 0;
+    margin: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.page-header {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.page-header img {
+    height: 40px;
+    vertical-align: middle;
+    margin-right: 15px;
+}
+
+.page-header .logo-text {
+    font-size: 24px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+.page-footer {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    text-align: center;
+}
+
+.editable-table {
+    table-layout: auto;
+    width: 100%;
+}
+
+.editable-table td, .editable-table th {
+    padding: 8px 12px;
+    vertical-align: top;
+}
+
+.column-trash {
+ 	width: 50px;
+ 	text-align: center;
+ }
+ 
+ .column-edit {
+ 	width: 70px;
+ 	text-align: center;
+ }
+ 
+ .column-fixed {
+    width: 200px;
+    white-space: nowrap;
+}
+ 
+ .column-fixed-bigger {
+    width: 400px;
+    white-space: normal;
+}
+ 
